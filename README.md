@@ -4,6 +4,52 @@
 
 游戏定位：参考经典横版平台跳跃玩法，设计一个原创像素风小游戏。角色、背景、金币、敌人、旗帜和音乐均为项目内生成的原创素材，不直接使用任天堂官方《超级马里奥》图片、音乐或商标素材。
 
+## 快速开始
+
+### 环境要求
+
+- Python 3.10 或以上
+- Pygame 2.x
+
+### 拉取代码
+
+```bash
+git clone https://github.com/berixoo/SuperMario.git
+cd SuperMario
+```
+
+已拉取过的仓库更新代码：
+
+```bash
+git pull origin master
+```
+
+### 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+### 运行游戏
+
+```bash
+python main.py
+```
+
+| 操作 | 按键 |
+|------|------|
+| 向左移动 | A / ← |
+| 向右移动 | D / → |
+| 跳跃 | Space / ↑ |
+| 暂停 | ESC |
+| 重新开始 | R |
+
+### 运行测试
+
+```bash
+python -m pytest tests/test_core.py -v
+```
+
 ## 项目结构
 
 ```text
