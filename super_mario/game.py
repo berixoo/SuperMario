@@ -217,6 +217,103 @@ class Game:
         tip = self.font_small.render("ESC 返回标题", True, (150, 150, 150))
         self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 560))
 
+    # ── PLAYING ─────────────────────────────
+
+    def _handle_playing(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.state = self.STATE_PAUSED
+                return
+            if event.key == pygame.K_r:
+                self._start_game(self.current_level, carry_over=False)
+                return
+            if event.key in (pygame.K_SPACE, pygame.K_UP):
+                self.jump_consumed = False
+            self.keys_pressed[event.key] = True
+        elif event.type == pygame.KEYUP:
+            self.keys_pressed[event.key] = False
+
+    def _update_playing(self, dt):
+        move_left = self.keys_pressed.get(pygame.K_a, False) or self.keys_pressed.get(pygame.K_LEFT, False)
+        move_right = self.keys_pressed.get(pygame.K_d, False) or self.keys_pressed.get(pygame.K_RIGHT, False)
+        jump_key = self.keys_pressed.get(pygame.K_SPACE, False) or self.keys_pressed.get(pygame.K_UP, False)
+        if not jump_key:
+            self.jump_consumed = False
+        jump_pressed = jump_key and not self.jump_consumed
+        if jump_pressed:
+            self.jump_consumed = True
+
+        # 物理 (返回顶到的问号砖块)
+        hit_blocks = update_player(self.player, self.tiles, self.question_blocks,
+                                   dt, move_left, move_right, jump_pressed)
+
+        # 问号砖块奖励
+        rewards = handle_top_collisions(self.player, hit_blocks)
+        for r in rewards:
+            self.sfx_queue.append('coin' if r == 'coin' else 'life')
+
+        # 金币
+        collected = handle_coin_collisions(self.player, self.coins)
+        if collected > 0:
+            self.sfx_queue.extend(['coin'] * collected)
+
+        # 敌人
+        update_enemies(self.enemies, self.tiles, dt)
+        result = handle_enemy_collisions(self.player, self.enemies)
+        if result == 'stomp':
+            self.sfx_queue.append('stomp')
+        elif result == 'hurt':
+            self.sfx_queue.append('hurt')
+
+        # 终点旗
+        if handle_flag_collision(self.player, self.flag):
+            self._on_win()
+
+        # 倒计时
+        self.level_time -= dt
+        if self.level_time <= 0:
+            self._on_death()
+
+        # 掉落
+        if not self.player.alive:
+            self.player.alive = True
+            self._on_death()
+
+        # 问号砖块弹跳衰减
+        for qb in self.question_blocks:
+            if qb.bounce_offset > 0:
+                qb.bounce_offset = max(0.0, qb.bounce_offset - 20.0 * dt)
+
+        # 摄像机
+        target_cx = self.player.x - SCREEN_WIDTH // 2 + TILE_SIZE // 2
+        target_cx = max(0.0, min(target_cx, self.level_width - SCREEN_WIDTH))
+        self.camera_x += (target_cx - self.camera_x) * min(dt * 8.0, 1.0)
+
+        # 音效
+        for sfx in self.sfx_queue:
+            if sfx == 'stomp':
+                self.play_sfx('jump')
+            else:
+                self.play_sfx(sfx)
+        self.sfx_queue.clear()
+
+    def _on_death(self):
+        self.player.lives -= 1
+        if self.player.lives <= 0:
+            self.state = self.STATE_GAME_OVER
+        else:
+            self._restart_same_level()
+
+    def _draw_playing(self):
+        sprites.draw_background(self.screen, self.current_level)
+        sprites.draw_tiles(self.screen, self.tiles, self.camera_x)
+        sprites.draw_question_blocks(self.screen, self.question_blocks, self.camera_x)
+        sprites.draw_coins(self.screen, self.coins, self.camera_x)
+        sprites.draw_enemies(self.screen, self.enemies, self.camera_x)
+        sprites.draw_flag(self.screen, self.flag, self.camera_x)
+        sprites.draw_player(self.screen, self.player, self.camera_x)
+        sprites.draw_hud(self.screen, self.player, self.level_time, self.font_hud)
+
     # ── 状态分发 ────────────────────────────
 
     def handle_events(self):
