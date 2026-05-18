@@ -165,6 +165,58 @@ class Game:
                          coins=self.player.coins)
         self.play_music()
 
+    # ── TITLE ───────────────────────────────
+
+    def _handle_title(self, event):
+        if event.type == pygame.KEYDOWN:
+            self.stop_music()
+            self.state = self.STATE_LEVEL_SELECT
+
+    def _draw_title(self):
+        self.screen.fill((40, 40, 80))
+        title = self.font_large.render("Super Mario Adventure", True, (255, 255, 255))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 180))
+        sub = self.font_small.render("A/D 移动   Space/↑ 跳跃   ESC 暂停   R 重开", True, (200, 200, 200))
+        self.screen.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 280))
+        start = self.font_medium.render("按任意键开始", True, (255, 255, 0))
+        self.screen.blit(start, (SCREEN_WIDTH // 2 - start.get_width() // 2, 400))
+
+    # ── LEVEL SELECT ────────────────────────
+
+    def _handle_level_select(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.state = self.STATE_TITLE
+            elif event.key == pygame.K_1 and self.save_data['unlocked_level'] >= 1:
+                self._start_game(1, carry_over=False)
+            elif event.key == pygame.K_2 and self.save_data['unlocked_level'] >= 2:
+                self._start_game(2, carry_over=False)
+            elif event.key == pygame.K_3 and self.save_data['unlocked_level'] >= 3:
+                self._start_game(3, carry_over=False)
+
+    def _draw_level_select(self):
+        self.screen.fill((20, 40, 60))
+        title = self.font_large.render("选择关卡", True, (255, 255, 255))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 60))
+
+        for i in range(1, 4):
+            y = 160 + (i - 1) * 130
+            unlocked = self.save_data['unlocked_level'] >= i
+            color = (255, 255, 255) if unlocked else (100, 100, 100)
+            name = LEVELS[i]['name']
+            best = self.save_data['best_scores'].get(f'level_{i}', 0)
+
+            text = f"按 {i} - {name}"
+            line1 = self.font_medium.render(text, True, color)
+            self.screen.blit(line1, (SCREEN_WIDTH // 2 - line1.get_width() // 2, y))
+
+            status = f"最高分: {best}" if unlocked else "未解锁"
+            line2 = self.font_small.render(status, True, color)
+            self.screen.blit(line2, (SCREEN_WIDTH // 2 - line2.get_width() // 2, y + 45))
+
+        tip = self.font_small.render("ESC 返回标题", True, (150, 150, 150))
+        self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 560))
+
     # ── 状态分发 ────────────────────────────
 
     def handle_events(self):
