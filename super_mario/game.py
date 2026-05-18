@@ -314,6 +314,115 @@ class Game:
         sprites.draw_player(self.screen, self.player, self.camera_x)
         sprites.draw_hud(self.screen, self.player, self.level_time, self.font_hud)
 
+    # ── PAUSED ──────────────────────────────
+
+    def _handle_paused(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.state = self.STATE_PLAYING
+            elif event.key == pygame.K_r:
+                self._start_game(self.current_level, carry_over=False)
+            elif event.key == pygame.K_q:
+                self.stop_music()
+                self.state = self.STATE_LEVEL_SELECT
+
+    def _draw_paused(self):
+        self._draw_playing()
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(180)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+        title = self.font_large.render("暂停", True, (255, 255, 255))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 150))
+        opts = [
+            ("ESC - 继续游戏", 250),
+            ("R - 重新开始本关", 310),
+            ("Q - 返回选关", 370),
+        ]
+        for text, y in opts:
+            surf = self.font_medium.render(text, True, (255, 255, 255))
+            self.screen.blit(surf, (SCREEN_WIDTH // 2 - surf.get_width() // 2, y))
+
+    # ── WIN (内部触发) ──────────────────────
+
+    def _on_win(self):
+        self.stop_music()
+        level_key = f'level_{self.current_level}'
+        best = self.save_data['best_scores'].get(level_key, 0)
+        if self.player.score > best:
+            self.save_data['best_scores'][level_key] = self.player.score
+        if self.current_level < 3:
+            self.save_data['unlocked_level'] = max(
+                self.save_data['unlocked_level'],
+                self.current_level + 1,
+            )
+
+        if not write_save(self.save_data):
+            self._save_error = True
+
+        self._carry_lives = self.player.lives
+        self._carry_score = self.player.score
+        self._carry_coins = self.player.coins
+        self._win_level = self.current_level
+        self.state = self.STATE_WIN
+
+    # ── WIN SCREEN ──────────────────────────
+
+    def _handle_win_screen(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                if self._win_level < 3:
+                    self._start_game(self._win_level + 1, carry_over=True)
+                else:
+                    self.state = self.STATE_LEVEL_SELECT
+            elif event.key == pygame.K_q:
+                self.state = self.STATE_LEVEL_SELECT
+
+    def _draw_win_screen(self):
+        self.screen.fill((0, 40, 0))
+        title = self.font_large.render("通关!", True, (255, 255, 0))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 100))
+        score_text = self.font_medium.render(f"得分: {self.player.score}", True, (255, 255, 255))
+        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 190))
+        info = f"金币: {self.player.coins}   生命: {self.player.lives}"
+        info_text = self.font_small.render(info, True, (255, 255, 255))
+        self.screen.blit(info_text, (SCREEN_WIDTH // 2 - info_text.get_width() // 2, 240))
+
+        if self._save_error:
+            err = self.font_small.render("警告: 最高分保存失败", True, (255, 100, 100))
+            self.screen.blit(err, (SCREEN_WIDTH // 2 - err.get_width() // 2, 280))
+
+        if self._win_level < 3:
+            tip = self.font_medium.render("按 Enter 进入下一关", True, (255, 255, 255))
+            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 350))
+            tip2 = self.font_small.render("按 Q 返回选关", True, (150, 150, 150))
+            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 400))
+        else:
+            tip = self.font_medium.render("恭喜全部通关!", True, (255, 255, 0))
+            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 350))
+            tip2 = self.font_small.render("按 Enter 或 Q 返回选关", True, (150, 150, 150))
+            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 400))
+
+    # ── GAME OVER ───────────────────────────
+
+    def _handle_game_over(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                self._start_game(self.current_level, carry_over=False)
+            elif event.key == pygame.K_q:
+                self.state = self.STATE_LEVEL_SELECT
+
+    def _draw_game_over(self):
+        self.screen.fill((40, 0, 0))
+        title = self.font_large.render("Game Over", True, (255, 50, 50))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 180))
+        score_text = self.font_medium.render(f"最终得分: {self.player.score}", True, (255, 255, 255))
+        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 280))
+        tip = self.font_medium.render("按 R 重新开始", True, (255, 255, 255))
+        self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 370))
+        tip2 = self.font_small.render("按 Q 返回选关", True, (150, 150, 150))
+        self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 420))
+
     # ── 状态分发 ────────────────────────────
 
     def handle_events(self):
