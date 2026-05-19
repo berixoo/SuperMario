@@ -52,9 +52,9 @@ python -m pytest tests/test_core.py -v
 
 ### 下载可执行程序
 
-无需安装 Python，下载解压即可运行：
+无需安装 Python 或任何依赖，下载单个 EXE 即可运行：
 
-[SuperMario v1.0.0](https://github.com/berixoo/SuperMario/releases/tag/v1.0.0) → 下载 `SuperMario.zip` → 解压 → 双击 `SuperMario.exe`
+[SuperMario v1.0.1](https://github.com/berixoo/SuperMario/releases/tag/v1.0.1) → 下载 `SuperMario.exe` → 双击运行
 
 ## 项目结构
 
