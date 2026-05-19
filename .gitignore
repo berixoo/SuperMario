@@ -6,3 +6,6 @@ save/
 *.egg-info/
 dist/
 build/
+build/
+dist/
+*.spec
