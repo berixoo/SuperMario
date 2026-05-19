@@ -173,13 +173,13 @@ class Game:
             self.state = self.STATE_LEVEL_SELECT
 
     def _draw_title(self):
-        self.screen.fill((40, 40, 80))
+        self.screen.fill((25, 25, 55))
         title = self.font_large.render("Super Mario Adventure", True, (255, 255, 255))
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 180))
-        sub = self.font_small.render("A/D 移动   Space/↑ 跳跃   ESC 暂停   R 重开", True, (200, 200, 200))
-        self.screen.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 280))
-        start = self.font_medium.render("按任意键开始", True, (255, 255, 0))
-        self.screen.blit(start, (SCREEN_WIDTH // 2 - start.get_width() // 2, 400))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 160))
+        sub = self.font_small.render("A/D 移动   Space/↑ 跳跃   ESC 暂停   R 重开", True, (180, 180, 200))
+        self.screen.blit(sub, (SCREEN_WIDTH // 2 - sub.get_width() // 2, 300))
+        start = self.font_medium.render("按任意键开始", True, (255, 230, 50))
+        self.screen.blit(start, (SCREEN_WIDTH // 2 - start.get_width() // 2, 430))
 
     # ── LEVEL SELECT ────────────────────────
 
@@ -195,12 +195,12 @@ class Game:
                 self._start_game(3, carry_over=False)
 
     def _draw_level_select(self):
-        self.screen.fill((20, 40, 60))
+        self.screen.fill((15, 30, 50))
         title = self.font_large.render("选择关卡", True, (255, 255, 255))
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 60))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 50))
 
         for i in range(1, 4):
-            y = 160 + (i - 1) * 130
+            y = 150 + (i - 1) * 140
             unlocked = self.save_data['unlocked_level'] >= i
             color = (255, 255, 255) if unlocked else (100, 100, 100)
             name = LEVELS[i]['name']
@@ -212,10 +212,10 @@ class Game:
 
             status = f"最高分: {best}" if unlocked else "未解锁"
             line2 = self.font_small.render(status, True, color)
-            self.screen.blit(line2, (SCREEN_WIDTH // 2 - line2.get_width() // 2, y + 45))
+            self.screen.blit(line2, (SCREEN_WIDTH // 2 - line2.get_width() // 2, y + 55))
 
-        tip = self.font_small.render("ESC 返回标题", True, (150, 150, 150))
-        self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 560))
+        tip = self.font_small.render("ESC 返回标题", True, (120, 120, 130))
+        self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 565))
 
     # ── PLAYING ─────────────────────────────
 
@@ -333,14 +333,14 @@ class Game:
         overlay.fill((0, 0, 0))
         self.screen.blit(overlay, (0, 0))
         title = self.font_large.render("暂停", True, (255, 255, 255))
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 150))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 120))
         opts = [
-            ("ESC - 继续游戏", 250),
-            ("R - 重新开始本关", 310),
-            ("Q - 返回选关", 370),
+            ("ESC - 继续游戏", 260),
+            ("R - 重新开始本关", 340),
+            ("Q - 返回选关", 420),
         ]
         for text, y in opts:
-            surf = self.font_medium.render(text, True, (255, 255, 255))
+            surf = self.font_medium.render(text, True, (220, 220, 220))
             self.screen.blit(surf, (SCREEN_WIDTH // 2 - surf.get_width() // 2, y))
 
     # ── WIN (内部触发) ──────────────────────
@@ -379,29 +379,34 @@ class Game:
                 self.state = self.STATE_LEVEL_SELECT
 
     def _draw_win_screen(self):
-        self.screen.fill((0, 40, 0))
-        title = self.font_large.render("通关!", True, (255, 255, 0))
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 100))
+        self.screen.fill((10, 30, 20))
+        # 标题
+        title = self.font_large.render("通关!", True, (255, 220, 50))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 80))
+        # 分数
         score_text = self.font_medium.render(f"得分: {self.player.score}", True, (255, 255, 255))
-        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 190))
-        info = f"金币: {self.player.coins}   生命: {self.player.lives}"
-        info_text = self.font_small.render(info, True, (255, 255, 255))
-        self.screen.blit(info_text, (SCREEN_WIDTH // 2 - info_text.get_width() // 2, 240))
-
+        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 200))
+        # 金币 + 生命
+        info = f"金币: {self.player.coins}    生命: {self.player.lives}"
+        info_text = self.font_small.render(info, True, (200, 220, 200))
+        self.screen.blit(info_text, (SCREEN_WIDTH // 2 - info_text.get_width() // 2, 270))
+        # 最高分保存失败警告
+        y_next = 340
         if self._save_error:
-            err = self.font_small.render("警告: 最高分保存失败", True, (255, 100, 100))
-            self.screen.blit(err, (SCREEN_WIDTH // 2 - err.get_width() // 2, 280))
-
+            err = self.font_small.render("警告: 最高分保存失败", True, (255, 120, 120))
+            self.screen.blit(err, (SCREEN_WIDTH // 2 - err.get_width() // 2, y_next))
+            y_next += 40
+        # 操作提示
         if self._win_level < 3:
             tip = self.font_medium.render("按 Enter 进入下一关", True, (255, 255, 255))
-            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 350))
+            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, y_next))
             tip2 = self.font_small.render("按 Q 返回选关", True, (150, 150, 150))
-            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 400))
+            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, y_next + 55))
         else:
-            tip = self.font_medium.render("恭喜全部通关!", True, (255, 255, 0))
-            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 350))
+            tip = self.font_medium.render("恭喜全部通关!", True, (255, 220, 50))
+            self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, y_next))
             tip2 = self.font_small.render("按 Enter 或 Q 返回选关", True, (150, 150, 150))
-            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 400))
+            self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, y_next + 55))
 
     # ── GAME OVER ───────────────────────────
 
@@ -413,15 +418,15 @@ class Game:
                 self.state = self.STATE_LEVEL_SELECT
 
     def _draw_game_over(self):
-        self.screen.fill((40, 0, 0))
-        title = self.font_large.render("Game Over", True, (255, 50, 50))
-        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 180))
+        self.screen.fill((30, 5, 5))
+        title = self.font_large.render("Game Over", True, (255, 60, 60))
+        self.screen.blit(title, (SCREEN_WIDTH // 2 - title.get_width() // 2, 140))
         score_text = self.font_medium.render(f"最终得分: {self.player.score}", True, (255, 255, 255))
-        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 280))
+        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, 270))
         tip = self.font_medium.render("按 R 重新开始", True, (255, 255, 255))
         self.screen.blit(tip, (SCREEN_WIDTH // 2 - tip.get_width() // 2, 370))
         tip2 = self.font_small.render("按 Q 返回选关", True, (150, 150, 150))
-        self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 420))
+        self.screen.blit(tip2, (SCREEN_WIDTH // 2 - tip2.get_width() // 2, 440))
 
     # ── 状态分发 ────────────────────────────
 

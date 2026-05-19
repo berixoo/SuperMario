@@ -90,13 +90,19 @@ def draw_flag(screen, flag, camera_x):
 
 
 def draw_hud(screen, player, level_time_remaining, font):
+    # Semi-transparent bar behind HUD
+    bar = pygame.Surface((SCREEN_WIDTH, 52))
+    bar.set_alpha(140)
+    bar.fill((0, 0, 0))
+    screen.blit(bar, (0, 0))
+
     score_text = font.render(f"Score: {player.score}", True, (255, 255, 255))
-    screen.blit(score_text, (10, 10))
+    screen.blit(score_text, (10, 6))
     coin_text = font.render(f"Coins: {player.coins}", True, (255, 255, 0))
-    screen.blit(coin_text, (10, 40))
+    screen.blit(coin_text, (10, 30))
     mins = int(max(0, level_time_remaining) // 60)
     secs = int(max(0, level_time_remaining) % 60)
     time_text = font.render(f"Time: {mins:02d}:{secs:02d}", True, (255, 255, 255))
-    screen.blit(time_text, (SCREEN_WIDTH // 2 - 50, 10))
-    lives_text = font.render(f"Lives: {player.lives}", True, (255, 50, 50))
-    screen.blit(lives_text, (SCREEN_WIDTH - 120, 10))
+    screen.blit(time_text, (SCREEN_WIDTH // 2 - time_text.get_width() // 2, 6))
+    lives_text = font.render(f"Lives: {player.lives}", True, (255, 80, 80))
+    screen.blit(lives_text, (SCREEN_WIDTH - lives_text.get_width() - 10, 6))
