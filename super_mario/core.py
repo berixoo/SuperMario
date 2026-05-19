@@ -266,6 +266,12 @@ def update_enemies(enemies, tiles, dt):
             continue
 
         if enemy.enemy_type == 'mush':
+            # 重力
+            enemy.vy += GRAVITY * dt
+            if enemy.vy > MAX_FALL_SPEED:
+                enemy.vy = MAX_FALL_SPEED
+
+            # 横向移动
             enemy.x += enemy.vx * dt
             for tr in tile_rects:
                 if enemy.rect.colliderect(tr):
@@ -275,6 +281,18 @@ def update_enemies(enemies, tiles, dt):
                         enemy.x = tr.right
                     enemy.vx = -enemy.vx
                     break
+
+            # 纵向移动 + 落地
+            enemy.y += enemy.vy * dt
+            for tr in tile_rects:
+                if enemy.rect.colliderect(tr):
+                    if enemy.vy > 0:
+                        enemy.y = tr.top - enemy.height
+                        enemy.vy = 0.0
+                    elif enemy.vy < 0:
+                        enemy.y = tr.bottom
+                        enemy.vy = 0.0
+
             # 边缘检测: 前方没有地面则转向
             edge_x = enemy.x + (enemy.width if enemy.vx > 0 else -1)
             edge_rect = Rect(edge_x, enemy.y + enemy.height + 1, 1, 1)

@@ -23,7 +23,7 @@ INITIAL_LIVES = 3
 COIN_SCORE = 100
 STOMP_SCORE = 300
 INVINCIBLE_DURATION = 1.5   # seconds
-LEVEL_TIMES = {1: 120, 2: 100, 3: 90}
+LEVEL_TIMES = {1: 120, 2: 120, 3: 120}
 
 # ── Tile chars ──────────────────────────────
 TILE_GROUND = '#'
