@@ -269,13 +269,14 @@ class Game:
         if handle_flag_collision(self.player, self.flag):
             self._on_win()
 
-        # 倒计时
+        # 倒计时 / 掉落 (同一帧只触发一次死亡)
         self.level_time -= dt
+        dead_this_frame = False
         if self.level_time <= 0:
             self._on_death()
+            dead_this_frame = True
 
-        # 掉落
-        if not self.player.alive:
+        if not dead_this_frame and not self.player.alive:
             self.player.alive = True
             self._on_death()
 
@@ -300,6 +301,7 @@ class Game:
     def _on_death(self):
         self.player.lives -= 1
         if self.player.lives <= 0:
+            self.stop_music()
             self.state = self.STATE_GAME_OVER
         else:
             self._restart_same_level()

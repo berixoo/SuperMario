@@ -5,7 +5,7 @@ import os
 import random
 
 from super_mario.config import (
-    TILE_SIZE, TILE_GROUND, TILE_EMPTY,
+    TILE_SIZE, TILE_GROUND,
     CHAR_PLAYER, CHAR_COIN, CHAR_ENEMY_MUSH, CHAR_ENEMY_BIRD,
     CHAR_QUESTION, CHAR_USED_BLOCK, CHAR_FLAG,
     GRAVITY, MAX_FALL_SPEED, PLAYER_SPEED, PLAYER_JUMP_VEL,
@@ -340,7 +340,9 @@ def handle_enemy_collisions(player, enemies):
             continue
 
         # 踩踏: 玩家下落且脚底靠近敌人顶部
-        if player.vy > 0 and (player.rect.bottom - enemy.rect.top) < 20:
+        # 阈值取最大一帧下落距离的 1.5 倍 (MAX_FALL_SPEED * 0.05 * 1.5 ≈ 72)
+        stomp_threshold = MAX_FALL_SPEED * 0.05 * 1.5
+        if player.vy > 0 and (player.rect.bottom - enemy.rect.top) < stomp_threshold:
             enemy.alive = False
             player.score += STOMP_SCORE
             player.vy = PLAYER_JUMP_VEL * 0.6
