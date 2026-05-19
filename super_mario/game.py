@@ -154,6 +154,8 @@ class Game:
                              coins=self._carry_coins)
         else:
             self.start_level(level_num)
+        self.keys_pressed.clear()
+        self.jump_consumed = False
         self.state = self.STATE_PLAYING
         self.play_music()
 
@@ -163,6 +165,8 @@ class Game:
                          lives=self.player.lives,
                          score=self.player.score,
                          coins=self.player.coins)
+        self.keys_pressed.clear()
+        self.jump_consumed = False
         self.play_music()
 
     # ── TITLE ───────────────────────────────
