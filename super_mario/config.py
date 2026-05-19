@@ -1,5 +1,6 @@
 """全局配置常量。"""
 import os
+import sys
 
 # ── Window ──────────────────────────────────
 SCREEN_WIDTH = 800
@@ -47,8 +48,15 @@ DARK_GRAY = (64, 64, 64)
 YELLOW = (255, 255, 0)
 
 # ── Paths ───────────────────────────────────
-_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ASSETS_DIR = os.path.join(_BASE_DIR, "assets")
+# PyInstaller onefile 模式下资源在 sys._MEIPASS 临时目录, 否则在源码目录
+if getattr(sys, 'frozen', False):
+    _DATA_DIR = sys._MEIPASS
+    _BASE_DIR = os.path.dirname(sys.executable)
+else:
+    _DATA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _BASE_DIR = _DATA_DIR
+
+ASSETS_DIR = os.path.join(_DATA_DIR, "assets")
 IMAGES_DIR = os.path.join(ASSETS_DIR, "images")
 AUDIO_DIR = os.path.join(ASSETS_DIR, "audio")
 SAVE_DIR = os.path.join(_BASE_DIR, "save")
