@@ -72,11 +72,12 @@ SuperMario/
 │  └─ game.py
 ├─ tests/
 │  ├─ __init__.py
-│  └─ test_core.py
+│  └─ test_core.py      ← 33 条核心逻辑单元测试
 ├─ docs/
 │  ├─ 01_game_design.md
 │  ├─ 02_implementation_plan.md
 │  ├─ 03_module_function_explanation.md
+│  ├─ 04_presentation_guide.md
 │  └─ superpowers/
 │     ├─ specs/2026-05-18-full-game-design.md
 │     └─ plans/2026-05-18-full-game-implementation.md
@@ -99,3 +100,4 @@ SuperMario/
 完整设计文档见 [docs/superpowers/specs/2026-05-18-full-game-design.md](docs/superpowers/specs/2026-05-18-full-game-design.md)。
 实施计划见 [docs/02_implementation_plan.md](docs/02_implementation_plan.md)。
 模块讲解见 [docs/03_module_function_explanation.md](docs/03_module_function_explanation.md)。
+答辩讲解指南见 [docs/04_presentation_guide.md](docs/04_presentation_guide.md)。

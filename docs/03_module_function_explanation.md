@@ -1,6 +1,6 @@
 # 代码模块功能讲解
 
-本文档用于说明后续实现代码时各模块的职责。当前项目只交付文档和素材，不包含实现代码。
+本文档用于说明各模块的职责和设计思路。项目已完成全部代码实现，可直接运行。
 
 ## 1. `main.py`
 
@@ -15,7 +15,11 @@
 建议内容：
 
 ```python
-from super_mario.game import main
+from super_mario.game import Game
+
+def main():
+    game = Game()
+    game.run()
 
 if __name__ == "__main__":
     main()
@@ -57,7 +61,10 @@ if __name__ == "__main__":
 | `#` | 地面或砖块 |
 | `P` | 玩家出生点 |
 | `C` | 金币 |
-| `E` | 敌人 |
+| `E` | 蘑菇敌人 |
+| `B` | 飞行敌人 |
+| `Q` | 问号砖块 |
+| `U` | 已触发问号砖块 |
 | `F` | 终点旗 |
 | `.` | 空白 |
 
@@ -126,21 +133,23 @@ main.py
   ↓
 game.py
   ↓        ↘
-core.py    assets/
+core.py    sprites.py
   ↓
 level_data.py
   ↓
 config.py
+assets/
 ```
 
 解释：
 
 - `main.py` 只负责启动。
 - `game.py` 负责主循环、输入、绘制和音效。
-- `core.py` 负责游戏规则。
-- `level_data.py` 提供关卡。
-- `config.py` 提供全局配置。
-- `assets/` 提供图片和音乐。
+- `core.py` 负责游戏规则 (纯 Python, 不依赖 Pygame)。
+- `sprites.py` 负责 Pygame 图片加载和绘制。
+- `level_data.py` 提供关卡文本地图。
+- `config.py` 提供全局配置常量。
+- `assets/` 提供图片和音频素材。
 
 ## 9. 注释要求建议
 

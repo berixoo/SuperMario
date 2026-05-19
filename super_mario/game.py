@@ -174,7 +174,7 @@ class Game:
             pygame.mixer.music.stop()
 
     def play_sfx(self, name):
-        """播放指定音效 (jump/coin/hurt)。""",
+        """播放指定音效 (jump/coin/hurt)。"""
         if self.audio_available and name in self.sounds:
             self.sounds[name].play()
 
