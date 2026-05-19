@@ -1,43 +1,70 @@
-"""全局配置常量。"""
+"""
+全局配置常量模块 (config.py)
+============================
+职责: 集中管理游戏中所有可调参数, 包括窗口尺寸、物理常量、素材路径等。
+修改游戏参数只需改此文件, 无需到处翻找硬编码数字。
+
+模块间关系: 被 core.py, sprites.py, game.py 导入使用。
+"""
+
 import os
 import sys
 
-# ── Window ──────────────────────────────────
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-FPS = 60
-TILE_SIZE = 32
 
-# ── Physics (per-second, used with dt) ──────
-PLAYER_SPEED = 300          # px/s
-PLAYER_JUMP_VEL = -720      # px/s (negative = upward)
-GRAVITY = 1800              # px/s²
-MAX_FALL_SPEED = 960        # px/s
+# ═══════════════════════════════════════════════════════════════════
+# 窗口配置
+# ═══════════════════════════════════════════════════════════════════
+SCREEN_WIDTH = 800          # 游戏窗口宽度 (像素)
+SCREEN_HEIGHT = 600         # 游戏窗口高度 (像素)
+FPS = 60                    # 目标帧率 (每秒刷新次数)
+TILE_SIZE = 32              # 每个瓦片的边长 (像素), 所有角色/砖块/金币均以此为基准
 
-# ── Enemy ───────────────────────────────────
-MUSHROOM_SPEED = 90         # px/s
-BIRD_SPEED = 120            # px/s
-BIRD_FLOAT_AMPLITUDE = 24   # px
 
-# ── Game rules ──────────────────────────────
-INITIAL_LIVES = 3
-COIN_SCORE = 100
-STOMP_SCORE = 300
-INVINCIBLE_DURATION = 1.5   # seconds
-LEVEL_TIMES = {1: 120, 2: 120, 3: 120}
+# ═══════════════════════════════════════════════════════════════════
+# 玩家物理参数 (所有速度单位为 px/s, 乘以 dt 实现帧率无关运动)
+# ═══════════════════════════════════════════════════════════════════
+PLAYER_SPEED = 300          # 水平移动速度
+PLAYER_JUMP_VEL = -720      # 跳跃初速度 (负值表示向上, Pygame 坐标系 y 轴向下)
+GRAVITY = 1800              # 重力加速度 (px/s²)
+MAX_FALL_SPEED = 960        # 最大下落速度 (终端速度, 防止无限加速)
 
-# ── Tile chars ──────────────────────────────
-TILE_GROUND = '#'
-TILE_EMPTY = '.'
-CHAR_PLAYER = 'P'
-CHAR_COIN = 'C'
-CHAR_ENEMY_MUSH = 'E'
-CHAR_ENEMY_BIRD = 'B'
-CHAR_QUESTION = 'Q'
-CHAR_USED_BLOCK = 'U'
-CHAR_FLAG = 'F'
 
-# ── Colors ──────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════
+# 敌人参数
+# ═══════════════════════════════════════════════════════════════════
+MUSHROOM_SPEED = 90         # 蘑菇敌人巡逻速度
+BIRD_SPEED = 120            # 飞行敌人水平速度
+BIRD_FLOAT_AMPLITUDE = 24   # 飞行敌人上下浮动幅度 (px)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 游戏规则常量
+# ═══════════════════════════════════════════════════════════════════
+INITIAL_LIVES = 3           # 玩家初始生命数
+COIN_SCORE = 100            # 每枚金币得分
+STOMP_SCORE = 300           # 踩踏敌人得分
+INVINCIBLE_DURATION = 1.5   # 受伤后无敌时间 (秒), 期间闪烁且不受伤害
+LEVEL_TIMES = {1: 120, 2: 120, 3: 120}  # 三关统一倒计时 (秒)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 关卡文本地图字符映射
+# 每个字符代表地图中一个 32x32 瓦片的内容
+# ═══════════════════════════════════════════════════════════════════
+TILE_GROUND = '#'           # 地面或砖块 (固体, 可站立)
+TILE_EMPTY = '.'            # 空白 (无任何实体)
+CHAR_PLAYER = 'P'           # 玩家出生点
+CHAR_COIN = 'C'             # 金币
+CHAR_ENEMY_MUSH = 'E'       # 蘑菇敌人 (Enemy mushroom)
+CHAR_ENEMY_BIRD = 'B'       # 飞行敌人 (Bird)
+CHAR_QUESTION = 'Q'         # 问号砖块 (可顶击获取奖励)
+CHAR_USED_BLOCK = 'U'       # 已触发问号砖块 (灰色, 不可再触发)
+CHAR_FLAG = 'F'             # 终点旗 (通关目标)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 常用颜色 (RGB 元组)
+# ═══════════════════════════════════════════════════════════════════
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -47,12 +74,18 @@ GRAY = (128, 128, 128)
 DARK_GRAY = (64, 64, 64)
 YELLOW = (255, 255, 0)
 
-# ── Paths ───────────────────────────────────
-# PyInstaller onefile 模式下资源在 sys._MEIPASS 临时目录, 否则在源码目录
+
+# ═══════════════════════════════════════════════════════════════════
+# 路径配置
+# PyInstaller 打包为单个 EXE 时, 资源在 sys._MEIPASS 临时目录;
+# 正常运行时, 资源在源码目录。存档始终写入 EXE/源码所在目录。
+# ═══════════════════════════════════════════════════════════════════
 if getattr(sys, 'frozen', False):
-    _DATA_DIR = sys._MEIPASS
-    _BASE_DIR = os.path.dirname(sys.executable)
+    # 运行在 PyInstaller 打包的 EXE 中
+    _DATA_DIR = sys._MEIPASS                # 资源被解压到此临时目录
+    _BASE_DIR = os.path.dirname(sys.executable)  # EXE 所在目录 (存档放这里)
 else:
+    # 正常 Python 运行
     _DATA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     _BASE_DIR = _DATA_DIR
 
