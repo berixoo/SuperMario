@@ -280,6 +280,11 @@ class Game:
             self.player.alive = True
             self._on_death()
 
+        # 敌人伤害致生命归零 (handle_enemy_collisions 已扣命, 此处补充检查)
+        if self.player.lives <= 0 and self.state == self.STATE_PLAYING:
+            self.stop_music()
+            self.state = self.STATE_GAME_OVER
+
         # 问号砖块弹跳衰减
         for qb in self.question_blocks:
             if qb.bounce_offset > 0:
